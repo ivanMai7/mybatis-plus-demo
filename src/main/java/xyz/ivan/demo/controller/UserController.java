@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.models.auth.In;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import xyz.ivan.demo.dto.PageDTO;
 import xyz.ivan.demo.dto.UserFormDTO;
 import xyz.ivan.demo.po.User;
 import xyz.ivan.demo.query.UserQuery;
@@ -65,5 +66,11 @@ public class UserController {
         Integer minBalance = queryUser.getMinBalance();
         List<User> users = userService.queryUsers(name, status, maxBalance, minBalance);
         return BeanUtil.copyToList(users, UserVO.class);
+    }
+
+    @GetMapping("/pages")
+    @ApiOperation("分页查询")
+    public PageDTO<UserVO> queryUserPages(UserQuery userQuery){
+        return userService.queryUserPages(userQuery);
     }
 }

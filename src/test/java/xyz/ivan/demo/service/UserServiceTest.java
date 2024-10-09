@@ -1,5 +1,6 @@
 package xyz.ivan.demo.service;
 
+import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,7 +74,10 @@ class UserServiceTest {
     @Test
     void testPageQuery() {
         // 1.分页查询，new Page()的两个参数分别是：页码、每页大小
-        Page<User> page = userService.page(Page.of(1, 2));
+        Page<User> userPage = Page.of(1, 2);
+        // 按照balance 降序
+        userPage.addOrder(new OrderItem("balance",false));
+        Page<User> page = userService.page(userPage);
         // 2.总条数
         System.out.println(page.getTotal());
         // 3.总页数

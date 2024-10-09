@@ -1,18 +1,24 @@
 package xyz.ivan.demo.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.baomidou.mybatisplus.core.metadata.OrderItem;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.Db;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import xyz.ivan.demo.dto.PageDTO;
 import xyz.ivan.demo.enums.UserStatus;
 import xyz.ivan.demo.mapper.UserMapper;
 import xyz.ivan.demo.po.Address;
 import xyz.ivan.demo.po.User;
+import xyz.ivan.demo.query.PageQuery;
+import xyz.ivan.demo.query.UserQuery;
 import xyz.ivan.demo.service.UserService;
 import xyz.ivan.demo.vo.AddressVO;
 import xyz.ivan.demo.vo.UserVO;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -81,5 +87,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             userVo.setAddressVOs(addressVOS);
         }
         return userVOS;
+    }
+
+    @Override
+    public PageDTO<UserVO> queryUserPages(PageQuery pageQuery) {
+        Page<User> page = Page.of(pageQuery.getPageNo(), pageQuery.getPageSize());
+        if(pageQuery.getSortBy() != null){
+            page.addOrder(new OrderItem(pageQuery.getSortBy(), pageQuery.getIsAsc()));
+        }else {
+            page.addOrder(new OrderItem("update_time", false));
+        }
+        page(page);
+        List<User> records = page.getRecords();
+        if(records == null || records.size() <= 0){
+            return new PageDTO<>(page.getTotal(), page.getPages(), Collections.emptyList());
+        }
+        List<UserVO> userVOS = BeanUtil.copyToList(records, UserVO.class);
+        return new PageDTO<UserVO>(page.getTotal(), page.getPages(), userVOS);
     }
 }
